@@ -3,22 +3,14 @@
     <v-app-bar app color="primary" dark> </v-app-bar>
 
     <v-main>
-      <!-- <HelloWorld/> -->
-      <Login />
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Login from './views/Todo.vue';
-
 export default {
   name: 'App',
-
-  components: {
-    Login
-  },
-
   data: () => ({
     //
   })

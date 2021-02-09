@@ -33,7 +33,7 @@
 
             <v-divider vertical></v-divider>
 
-            <strong class="mx-3 grey--text"> Hidden: {{ completedTasks }} </strong>
+            <strong class="mx-3 grey--text"> Hidden: 0 </strong>
 
             <v-spacer></v-spacer>
 
