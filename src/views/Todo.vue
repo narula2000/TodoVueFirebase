@@ -62,8 +62,8 @@
                   <v-spacer></v-spacer>
 
                   <v-scroll-x-transition>
-                    <v-icon v-if="task.done" color="success">
-                      check
+                    <v-icon v-if="task.done" color="success" class="mx-5">
+                      mdi-check
                     </v-icon>
                   </v-scroll-x-transition>
                 </v-list-tile>
