@@ -7,6 +7,14 @@
             <v-card elevation="4" light tag="section">
               <v-card-title>
                 <v-layout align-center justify-space-between>
+                  <v-img
+                    alt="Vuetify Logo"
+                    class="shrink mr-2"
+                    contain
+                    src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+                    transition="scale-transition"
+                    width="40"
+                  />
                   <h3 class="headline">
                     {{ platformName }}
                   </h3>
