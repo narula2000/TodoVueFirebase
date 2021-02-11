@@ -6,7 +6,7 @@
           <v-text-field v-model="task" label="What need to be done?" solo @keydown.enter="create">
             <v-fade-transition slot="append">
               <v-icon v-if="task" @click="create">
-                add_circle
+                mdi-plus-circle-outline
               </v-icon>
             </v-fade-transition>
           </v-text-field>
