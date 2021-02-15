@@ -1,9 +1,11 @@
+import firebase from 'firebase/app';
 import Vue from 'vue';
-import firebase from 'firebase';
-import App from './App.vue';
-import router from './router';
 import vuetify from './plugins/vuetify';
+import router from './router';
+import App from './App.vue';
 import firebaseConfig from './plugins/firebase';
+import 'firebase/auth';
+import 'firebase/database';
 
 firebase.initializeApp(firebaseConfig);
 

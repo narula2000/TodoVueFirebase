@@ -27,6 +27,11 @@ const routes = [
     path: '/todo',
     name: 'Todo',
     component: () => import(/* webpackChunkName: "about" */ '../views/Todo.vue')
+  },
+  {
+    path: '/data',
+    name: 'Data',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Database.vue')
   }
 ];
 
