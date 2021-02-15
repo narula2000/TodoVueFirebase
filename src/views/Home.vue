@@ -4,7 +4,7 @@
       <router-link to="/">Home</router-link> | <router-link to="/login">Login</router-link> |
       <router-link to="/todo">Todo</router-link>
     </div>
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <HelloWorld />
   </div>
 </template>
 
