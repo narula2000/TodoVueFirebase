@@ -41,7 +41,11 @@
                   Register
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="info" :large="$vuetify.breakpoint.smAndUp">
+                <button v-on:click="googleLogin" class="social-button">
+                  <img alt="Google Logo" src="../assets/google-logo.png" />
+                </button>
+                <v-spacer></v-spacer>
+                <v-btn color="info" :large="$vuetify.breakpoint.smAndUp" v-on:click="login">
                   <v-icon left>mdi-lock</v-icon>
                   Login
                 </v-btn>
@@ -55,14 +59,52 @@
 </template>
 
 <script>
+import firebase from 'firebase/app';
+import 'firebase/auth';
+
+const auth = firebase.auth();
+
 export default {
   data() {
     return {
       darkTheme: true,
       platformName: 'Todo App',
       password: null,
-      username: null
+      email: null,
+      error: null
     };
+  },
+  methods: {
+    async login() {
+      console.log(this.email, this.password);
+      try {
+        const response = await firebase
+          .auth()
+          .signInWithEmailAndPassword(this.email, this.password);
+        if (response) {
+          await this.$store.dispatch('auth/setAuthenticatedUser', response.user);
+          this.$nextTick(() => {
+            this.$router.push('todo');
+          });
+        }
+      } catch (e) {
+        this.error = true;
+      }
+    },
+    async googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const response = await auth.signInWithPopup(provider).then(this.$router.push('todo'));
+        if (response) {
+          await this.$store.dispatch('auth/setAuthenticatedUser', response.user);
+          this.$nextTick(() => {
+            this.$router.push('todo');
+          });
+        }
+      } catch (e) {
+        this.error = true;
+      }
+    }
   }
 };
 </script>
@@ -74,5 +116,21 @@ export default {
 }
 .v-card__title {
   text-transform: uppercase;
+}
+
+.social-button {
+  width: 75px;
+  background: white;
+  padding: 11.8px 10px 8.2px 10px;
+  border-radius: 100%;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  outline: 0;
+  border: 0;
+}
+.social-button:active {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+.social-button img {
+  width: 100%;
 }
 </style>
