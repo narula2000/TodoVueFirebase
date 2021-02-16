@@ -53,6 +53,9 @@
                         v-text="task.text"
                       ></div>
                     </v-checkbox>
+                    <v-icon v-on:click="removeTask(task)">
+                      mdi-close
+                    </v-icon>
                   </v-list-tile-action>
 
                   <v-spacer></v-spacer>
@@ -112,6 +115,7 @@ export default {
         done: false,
         text: this.task
       });
+      this.task = null;
 
       const database = firebase.database();
 
@@ -119,11 +123,10 @@ export default {
         .ref('tasks/')
         .child(this.$store.state.auth.user.uid)
         .set({
-          createAt: String(new Date()),
+          updatedAt: String(new Date()),
           uid: String(this.$store.state.auth.user.uid),
           tasks: this.tasks
         });
-      this.task = null;
     },
     clearTask() {
       this.tasks = this.activeTodos;
@@ -134,7 +137,26 @@ export default {
         .ref('tasks/')
         .child(this.$store.state.auth.user.uid)
         .set({
-          createAt: String(new Date()),
+          updatedAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
+    },
+    removeTask(task) {
+      const idx = this.tasks.indexOf(task);
+      if (this.tasks.length > 1) {
+        this.tasks.splice(idx, 1);
+      } else {
+        this.tasks = [];
+      }
+
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          updatedAt: String(new Date()),
           uid: String(this.$store.state.auth.user.uid),
           tasks: this.tasks
         });
@@ -156,14 +178,17 @@ export default {
       snap => {
         console.log('Data =>', snap.val());
         data = snap.val();
-        if (data === null) {
+        if (data === null || data.tasks === undefined) {
           database
             .ref('tasks/')
             .child(this.$store.state.auth.user.uid)
             .set({
-              createAt: String(new Date()),
+              updatedAt: String(new Date()),
               uid: String(this.$store.state.auth.user.uid)
             });
+          this.tasks = [];
+        } else {
+          this.tasks = data.tasks;
         }
       },
       err => {

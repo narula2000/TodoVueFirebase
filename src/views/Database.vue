@@ -24,7 +24,7 @@ export default {
         .ref('tasks/')
         .child(this.$store.state.auth.user.uid)
         .set({
-          createAt: String(new Date()),
+          updatedAt: String(new Date()),
           uid: String(this.$store.state.auth.user.uid),
           tasks: [
             { done: false, text: 'hello' },
@@ -38,7 +38,7 @@ export default {
         .ref('tasks/')
         .child(this.$store.state.auth.user.uid)
         .set({
-          createAt: String(new Date()),
+          updatedAt: String(new Date()),
           uid: String(this.$store.state.auth.user.uid),
           tasks: []
         });
