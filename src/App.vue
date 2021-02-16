@@ -33,7 +33,7 @@ export default {
   name: 'App',
   data() {
     return {
-      drawer: true,
+      drawer: false,
       items: [
         { title: 'Home', icon: 'mdi-view-dashboard', link: '/todo' },
         { title: 'About', icon: 'mdi-help-circle-outline', link: '/login' }
@@ -42,7 +42,3 @@ export default {
   }
 };
 </script>
-
-<style lang="stylus">
-@import '@/stylus/main'
-</style>
