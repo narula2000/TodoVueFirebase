@@ -22,7 +22,7 @@
               </v-card-title>
               <v-divider></v-divider>
               <v-card-text>
-                <p>Sign in with your email and password:</p>
+                <p>Register with your email and password:</p>
                 <v-form>
                   <v-text-field outline label="Email" type="text" v-model="email"></v-text-field>
                   <v-text-field
@@ -32,23 +32,22 @@
                     type="password"
                     v-model="password"
                   ></v-text-field>
+                  <v-text-field
+                    outline
+                    hide-details
+                    label="Confirm Password"
+                    type="password"
+                    v-model="conpassword"
+                  ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions :class="{ 'pa-3': $vuetify.breakpoint.smAndUp }">
-                <v-btn color="info" :large="$vuetify.breakpoint.smAndUp" to="/register">
+                <v-btn color="info" :large="$vuetify.breakpoint.smAndUp" v-on:click="register">
                   <v-icon left>mdi-account</v-icon>
                   Register
                 </v-btn>
                 <v-spacer></v-spacer>
-                <button v-on:click="googleLogin" class="social-button">
-                  <img alt="Google Logo" src="../assets/google-logo.png" />
-                </button>
-                <v-spacer></v-spacer>
-                <v-btn color="info" :large="$vuetify.breakpoint.smAndUp" v-on:click="login">
-                  <v-icon left>mdi-lock</v-icon>
-                  Login
-                </v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -70,41 +69,32 @@ export default {
       darkTheme: true,
       platformName: 'Todo App',
       password: null,
+      conpassword: null,
       email: null,
       error: null
     };
   },
   methods: {
-    async login() {
+    async register() {
       console.log(this.email, this.password);
       try {
-        const response = await auth.signInWithEmailAndPassword(this.email, this.password);
+        if (this.password !== this.conpassword) {
+          throw new Error('Password and Confirmation password are not equal');
+        }
+        const response = await auth.createUserWithEmailAndPassword(this.email, this.password);
         if (response) {
           await this.$store.dispatch('auth/setAuthenticatedUser', response.user);
           this.$nextTick(() => {
-            this.$router.push('todo');
+            this.$router.push('login');
           });
         }
       } catch (e) {
         this.error = true;
         this.email = '';
         this.password = '';
+        this.conpassword = '';
         // eslint-disable-next-line
         alert('Oops. ' + e.message);
-      }
-    },
-    async googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        const response = await auth.signInWithPopup(provider);
-        if (response) {
-          await this.$store.dispatch('auth/setAuthenticatedUser', response.user);
-          this.$nextTick(() => {
-            this.$router.push('todo');
-          });
-        }
-      } catch (e) {
-        this.error = true;
       }
     }
   }
@@ -118,21 +108,5 @@ export default {
 }
 .v-card__title {
   text-transform: uppercase;
-}
-
-.social-button {
-  width: 75px;
-  background: white;
-  padding: 11.8px 10px 8.2px 10px;
-  border-radius: 100%;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-  outline: 0;
-  border: 0;
-}
-.social-button:active {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-}
-.social-button img {
-  width: 100%;
 }
 </style>
