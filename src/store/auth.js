@@ -1,3 +1,6 @@
+import firebase from 'firebase/app';
+import 'firebase/auth';
+
 export default {
   state: {
     user: null
@@ -10,6 +13,14 @@ export default {
   actions: {
     setAuthenticatedUser(context, user) {
       context.commit('setUser', user);
+    },
+    signOut({ commit }) {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          commit('setUser', null);
+        });
     }
   },
   getters: {
