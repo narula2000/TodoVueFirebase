@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <v-app>
-      <v-content>
+      <v-main>
         <v-container style="max-width: 500px">
           <v-text-field v-model="task" label="What need to be done?" solo @keydown.enter="create">
             <v-fade-transition slot="append">
@@ -30,10 +30,6 @@
             <v-divider vertical></v-divider>
 
             <strong class="mx-3 black--text"> Completed: {{ completedTasks }} </strong>
-
-            <v-divider vertical></v-divider>
-
-            <strong class="mx-3 grey--text"> Hidden: 0 </strong>
 
             <v-spacer></v-spacer>
 
@@ -70,26 +66,27 @@
               </template>
             </v-slide-y-transition>
           </v-card>
+          <br />
+          <v-btn v-on:click="clearTask" v-if="tasks.length > 0">Clear</v-btn>
         </v-container>
-      </v-content>
+      </v-main>
+      <v-footer>
+        <v-btn v-on:click="logout" align-right>
+          Logout
+        </v-btn>
+      </v-footer>
     </v-app>
   </div>
 </template>
 
 <script>
+import firebase from 'firebase/app';
+import 'firebase/database';
+
 export default {
   data() {
     return {
-      tasks: [
-        {
-          done: false,
-          text: 'Task 1'
-        },
-        {
-          done: false,
-          text: 'Task 2'
-        }
-      ],
+      tasks: null,
       task: null
     };
   },
@@ -103,6 +100,9 @@ export default {
     },
     remainingTasks() {
       return this.tasks.length - this.completedTasks;
+    },
+    activeTodos() {
+      return this.tasks.filter(todo => !todo.done);
     }
   },
 
@@ -113,8 +113,78 @@ export default {
         text: this.task
       });
 
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          createAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
       this.task = null;
+    },
+    clearTask() {
+      this.tasks = this.activeTodos;
+
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          createAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
+    },
+    logout() {
+      this.$store.dispatch('auth/signOut');
+      this.$router.push('home');
     }
+  },
+  created() {
+    const path = 'tasks/'.concat(this.$store.state.auth.user.uid);
+    const database = firebase.database();
+    const ref = database.ref(path);
+
+    let data;
+
+    ref.on(
+      'value',
+      snap => {
+        console.log('1 =>', snap.val());
+        data = snap.val();
+      },
+      err => {
+        console.log(err.code);
+        database
+          .ref('tasks/')
+          .child(this.$store.state.auth.user.uid)
+          .set({
+            createAt: String(new Date()),
+            uid: String(this.$store.state.auth.user.uid)
+          });
+      }
+    );
+    ref.on(
+      'value',
+      snap => {
+        console.log('2 =>', snap.val());
+        data = snap.val();
+        if (data.tasks) {
+          this.tasks = data.tasks;
+          console.log('DATA =>', this.tasks);
+        } else {
+          this.tasks = [];
+        }
+      },
+      err => {
+        console.log(err.code);
+      }
+    );
+    console.log('data =>', data.tasks);
   }
 };
 </script>

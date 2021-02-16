@@ -3,8 +3,11 @@
     <v-btn v-on:click="addData">
       add
     </v-btn>
-    <v-btn v-on:click="updateData">
-      update
+    <v-btn v-on:click="fetchData">
+      fetch
+    </v-btn>
+    <v-btn v-on:click="emptyData">
+      add empty
     </v-btn>
   </div>
 </template>
@@ -18,19 +21,41 @@ export default {
   methods: {
     addData() {
       database
-        .ref('tasks')
-        .push()
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
         .set({
-          data: String(new Date())
+          createAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: [
+            { done: false, text: 'hello' },
+            { done: false, text: 'Hi' },
+            { done: true, text: 'T-T' }
+          ]
         });
     },
-    updateData() {
+    emptyData() {
       database
-        .ref('tasks')
-        .child()
-        .update({
-          data: String(new Date())
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          createAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: []
         });
+    },
+    fetchData() {
+      const path = 'tasks/'.concat(this.$store.state.auth.user.uid);
+      const ref = database.ref(path);
+
+      ref.on(
+        'value',
+        snap => {
+          console.log(snap.val());
+        },
+        err => {
+          console.log(err.code);
+        }
+      );
     }
   }
 };
