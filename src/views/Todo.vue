@@ -38,36 +38,76 @@
 
           <v-divider class="mb-3"></v-divider>
 
-          <v-card v-if="tasks.length > 0">
-            <v-slide-y-transition class="py-0" group tag="v-list">
-              <template v-for="(task, i) in tasks">
-                <v-divider v-if="i !== 0" :key="`${i}-divider`"></v-divider>
-
-                <v-list-tile :key="`${i}-${task.text}`">
-                  <v-list-tile-action>
-                    <v-checkbox v-model="task.done" color="info darken-3">
-                      <div
-                        slot="label"
-                        :class="(task.done && 'grey--text') || 'text--primary'"
-                        class="ml-3"
-                        v-text="task.text"
-                      ></div>
+          <v-card v-if="tasks.length > 0" class="card">
+            <v-list-group v-for="(task, i) in tasks" :key="`${i}-${task.text}`">
+              <v-divider v-if="i !== 0" :key="`${i}-divider`"></v-divider>
+              <template v-slot:activator>
+                <v-list-item-content>
+                  <v-row>
+                    <v-checkbox v-model="task.done" color="info darken-3" v-if="!task.subtasks">
                     </v-checkbox>
-                    <v-icon v-on:click="removeTask(task)">
+                    <div
+                      slot="label"
+                      :class="(task.done && 'grey--text') || 'text--primary'"
+                      padding="20px 0 0 0"
+                      class="tasktext"
+                      v-text="task.text"
+                    ></div>
+                    <v-icon v-on:click="addSubtask(task)" color="info darken-3" class="ma-2">
+                      mdi-plus
+                    </v-icon>
+                    <v-icon v-on:click="removeTask(task)" color="red" class="ma-2">
                       mdi-close
                     </v-icon>
-                  </v-list-tile-action>
-
-                  <v-spacer></v-spacer>
-
-                  <v-scroll-x-transition>
-                    <v-icon v-if="task.done" color="success" class="mx-5">
-                      mdi-check
-                    </v-icon>
-                  </v-scroll-x-transition>
-                </v-list-tile>
+                    <v-spacer></v-spacer>
+                  </v-row>
+                </v-list-item-content>
               </template>
-            </v-slide-y-transition>
+              <v-divider></v-divider>
+              <v-list v-if="task.subtasks" name="subtask">
+                <template v-for="(subtask, j) in task.subtasks">
+                  <v-divider v-if="j !== 0" :key="`${j}-divider`"></v-divider>
+                  <v-list-item :key="`${j}-${subtask.text}`">
+                    <v-list-item-action>
+                      <v-icon v-on:click="removeSubtask(task, subtask)" color="red" class="ma-2">
+                        mdi-close
+                      </v-icon>
+                      <v-checkbox
+                        v-model="subtask.done"
+                        color="info darken-3"
+                        padding="4px 0 0 18px"
+                      >
+                        <div
+                          slot="label"
+                          :class="(subtask.done && 'grey--text') || 'text--primary'"
+                          class="ml-3"
+                          v-text="subtask.text"
+                        ></div>
+                      </v-checkbox>
+                      <v-icon v-on:click="addSubtaskTask(task)" color="info darken-3" class="ma-2">
+                        mdi-plus
+                      </v-icon>
+                    </v-list-item-action>
+
+                    <v-spacer></v-spacer>
+
+                    <v-scroll-x-transition>
+                      <v-icon v-if="subtask.done" color="success" class="mx-5">
+                        mdi-check
+                      </v-icon>
+                    </v-scroll-x-transition>
+                  </v-list-item>
+                </template>
+              </v-list>
+
+              <v-spacer></v-spacer>
+
+              <v-scroll-x-transition>
+                <v-icon v-if="task.done" color="success" class="mx-5">
+                  mdi-check
+                </v-icon>
+              </v-scroll-x-transition>
+            </v-list-group>
           </v-card>
           <br />
           <v-btn v-on:click="clearTask" v-if="tasks.length > 0">Clear</v-btn>
@@ -90,7 +130,9 @@ export default {
   data() {
     return {
       tasks: null,
-      task: null
+      task: null,
+      subtasks: null,
+      subtask: null
     };
   },
 
@@ -161,6 +203,54 @@ export default {
           tasks: this.tasks
         });
     },
+    removeSubtask(task, subtask) {
+      const idx = this.tasks.indexOf(task);
+      const subIdx = this.tasks[idx].subtasks.indexOf(subtask);
+      if (this.tasks[idx].subtasks.length > 1) {
+        this.tasks[idx].subtasks.splice(subIdx, 1);
+      } else {
+        this.tasks[idx].subtasks = [];
+      }
+
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          updatedAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
+    },
+    addSubtask(task) {
+      const idx = this.tasks.indexOf(task);
+      this.tasks[idx].subtasks = [{ done: false, text: 'hello' }];
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          updatedAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
+    },
+    addSubtaskTask(task) {
+      const idx = this.tasks.indexOf(task);
+      this.tasks[idx].subtasks.push({ done: false, text: 'HI' });
+      const database = firebase.database();
+
+      database
+        .ref('tasks/')
+        .child(this.$store.state.auth.user.uid)
+        .set({
+          updatedAt: String(new Date()),
+          uid: String(this.$store.state.auth.user.uid),
+          tasks: this.tasks
+        });
+    },
     logout() {
       this.$store.dispatch('auth/signOut');
       this.$router.push('home');
@@ -198,3 +288,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.tasktext {
+  padding: 15px 0 5px 10px;
+  max-height: 35px;
+}
+.card {
+  padding: 0 7px 0 7px;
+}
+</style>
