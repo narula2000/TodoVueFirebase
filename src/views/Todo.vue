@@ -154,37 +154,22 @@ export default {
     ref.on(
       'value',
       snap => {
-        console.log('1 =>', snap.val());
+        console.log('Data =>', snap.val());
         data = snap.val();
-      },
-      err => {
-        console.log(err.code);
-        database
-          .ref('tasks/')
-          .child(this.$store.state.auth.user.uid)
-          .set({
-            createAt: String(new Date()),
-            uid: String(this.$store.state.auth.user.uid)
-          });
-      }
-    );
-    ref.on(
-      'value',
-      snap => {
-        console.log('2 =>', snap.val());
-        data = snap.val();
-        if (data.tasks) {
-          this.tasks = data.tasks;
-          console.log('DATA =>', this.tasks);
-        } else {
-          this.tasks = [];
+        if (data === null) {
+          database
+            .ref('tasks/')
+            .child(this.$store.state.auth.user.uid)
+            .set({
+              createAt: String(new Date()),
+              uid: String(this.$store.state.auth.user.uid)
+            });
         }
       },
       err => {
         console.log(err.code);
       }
     );
-    console.log('data =>', data.tasks);
   }
 };
 </script>

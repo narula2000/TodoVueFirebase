@@ -76,7 +76,6 @@ export default {
   },
   methods: {
     async login() {
-      console.log(this.email, this.password);
       try {
         const response = await auth.signInWithEmailAndPassword(this.email, this.password);
         if (response) {
