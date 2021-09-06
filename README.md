@@ -1,6 +1,6 @@
 # TodoVueFirebase
 
-This is a part of ICCS485 project. The task is to implement a todo web application with help of firebase and vue.
+This is a part of ICCS485 work. The task is to implement a todo web application with help of firebase and vue.
 
 ## Project setup
 ```
